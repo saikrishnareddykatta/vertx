@@ -1,5 +1,7 @@
 package com.learning.udemy.broker.assets;
 
+import io.netty.handler.codec.http.HttpHeaderValues;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
@@ -25,7 +27,9 @@ public class AssetsRestApi {
 //        .add(new Asset("NFLX"))
 //        .add(new Asset("TSLA"));
       LOG.info("Path {} responds with {}", context.normalizedPath(), response.encode());
-      context.response().end(response.toBuffer());
+      context.response()
+        .putHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
+        .end(response.toBuffer());
     });
   }
 }
