@@ -55,6 +55,32 @@ public class TestWatchListRestApi {
       });
   }
 
+  @Test
+  void adds_and_deletes_watchlist_for_account(Vertx vertx, VertxTestContext context) throws Throwable {
+    var client = WebClient.create(vertx, new WebClientOptions().setDefaultPort(MainVerticle.PORT));
+    var accountId = UUID.randomUUID();
+    client.put("/account/watchlist/" + accountId.toString())
+      .sendJsonObject(getRequestBody())
+      .onComplete(context.succeeding(response -> {
+        var json = response.bodyAsJsonObject();
+        LOG.info("Response PUT: {}", json);
+        assertEquals("{\"assets\":[{\"name\":\"AMZN\"},{\"name\":\"TSLA\"}]}", json.encode());
+        assertEquals(200, response.statusCode());
+        // context.completeNow();
+      })).compose(next -> {
+        client.delete("/account/watchlist/" + accountId.toString())
+          .send()
+          .onComplete(context.succeeding(response -> {
+            var json = response.bodyAsJsonObject();
+            LOG.info("Response DELETE: {}", json);
+            assertEquals("{\"assets\":[{\"name\":\"AMZN\"},{\"name\":\"TSLA\"}]}", json.encode());
+            assertEquals(200, response.statusCode());
+            context.completeNow();
+          }));
+        return Future.succeededFuture();
+      });
+  }
+
   private static JsonObject getRequestBody() {
     return new WatchList(Arrays.asList(
       new Asset("AMZN"),

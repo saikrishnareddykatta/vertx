@@ -65,6 +65,14 @@ public class WatchListRestApi {
     });
 
     parent.delete(path).handler(context -> {
+      UUID accountId = parseAccountIdOrFail(context);
+      if (accountId == null) return;
+      final WatchList deletedWatchList = watchListPerAccount.remove(accountId);
+      LOG.info("Deleted {}, Remaining: {}", deletedWatchList, watchListPerAccount.values() );
+      context.response()
+        .end(
+          deletedWatchList.toJsonObject().toBuffer()
+        );
     });
   }
 
