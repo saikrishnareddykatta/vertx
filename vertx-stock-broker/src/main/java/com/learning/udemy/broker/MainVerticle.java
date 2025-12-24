@@ -25,11 +25,14 @@ public class MainVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) {
     vertx.deployVerticle(RestApiVerticle.class.getName(), new DeploymentOptions().setInstances(getInstances()))
-      .onSuccess(deploymentId ->
-        LOG.info("Deployed {} with id={}", RestApiVerticle.class.getSimpleName(), deploymentId)
-      )
       .onFailure(err ->
         LOG.error("Failed to deploy {}", RestApiVerticle.class.getSimpleName(), err)
+      )
+      .onSuccess(deploymentId ->
+        {
+          LOG.info("Deployed {} with id={}", RestApiVerticle.class.getSimpleName(), deploymentId);
+          startPromise.complete();
+        }
       );
   }
 
